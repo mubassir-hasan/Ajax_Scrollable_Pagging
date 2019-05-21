@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container">
+        <article class="post"></article>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+    <script src="https://unpkg.com/infinite-scroll@3/dist/infinite-scroll.pkgd.min.js"></script>
+
+    <script>
+        
+       var container =$('.container').infiniteScroll({
+            // options
+            path: 'https://reqres.in/api/products?page=1&&per_page=4',
+            history: false,
+        });
+        $container.on('load.infiniteScroll', function (event, response) {
+            // parse response into JSON data
+            console.log(response)
+            //var data = JSON.parse(response);
+            // compile data into HTML
+            var itemsHTML = data.map(getItemHTML).join('');
+            // convert HTML string into elements
+            var $items = $(itemsHTML);
+            // append item elements
+            $container.infiniteScroll('appendItems', $items);
+        });
+    </script>
+</body>
+
+</html>

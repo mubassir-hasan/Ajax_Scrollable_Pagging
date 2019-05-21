@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="waitMe.css">
+    <style>
+        div#status {
+            position: fixed;
+            font-size: 20px;
+        }
+
+        div#wrap {
+            width: 800px;
+            margin: 0px auto;
+            height: 1000px;
+            background: red
+        }
+
+        div.newData {
+            height: 90vh;
+            background: forestgreen;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="status">
+        0 | 0
+    </div>
+    <div id="wrap"></div>
+    <div id="loader" style="height: 50px"></div>
+
+    <input type="hidden" id="pageHidden" value="0">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+    <script src="waitMe.js"></script>
+    <!--
+    <script>
+        var start = 1;
+        var pageSize = 3;
+        var working = false;
+        function getData(page, perPage) {
+                $.ajax({
+                    type: "GET",
+                    url: "https://reqres.in/api/products",
+
+                    processData: true,
+                    contentType: "application/json",
+                    data: {
+                        page: start,
+                        per_page: pageSize
+                    },
+                    success: function (res) {
+                        //var test=JSON.parse(res.data);
+                        console.log(res);
+                        res.data.forEach(element => {
+                            $('#wrap').append(`
+                        <div class="newData">
+                            <h1>` + element.id + `</h1>
+                            <h1>` + element.name + `</h1>
+                            <h1>` + element.year + `</h1>
+                        </div>
+                        `);
+
+                        });
+                        start += 1;
+                        console.log("start in scroll: " + start)
+
+                    },
+                    error: function (r) {
+                        console.log("something wrong");
+                    }
+                });
+            }
+        $(document).ready(function () {
+            getData();
+
+            $(window).scroll(function () {
+                if ($(this).scrollTop() + 1 >= $('body').height() - $(window).height()) {
+                    if (working == false) {
+                        working = true;
+
+
+                    }
+                }
+            });
+        });
+    </script>
+-->
+    <script>
+        $(document).ready(function () {
+
+            var loadingValue = "N";
+
+            $(document).unbind(".firstCall");
+            $(document).on("ajaxStart.firstCall", function () {
+                $('#loader').waitMe({
+                    effect: 'progress',
+                    text: 'Please Wait'
+                });
+                loadingValue = "Y";
+            });
+
+            $(document).on("ajaxStop.firstCall", function () {
+                $("#loadingImg").hide();
+                loadingValue = "N";
+            });
+
+            var pageHiddenValu = 0;
+
+            CallServerFunction();
+            // Each time the user scrolls
+            var maxPageSize = 0;
+            $(window).scroll(function () {
+                // End of the document reached?
+                if ($(document).height() - $(this).height() - 100 < $(this).scrollTop()) {
+                    var page = parseInt(pageHiddenValu);
+                    var total_pages = parseInt(maxPageSize);
+                    if (loadingValue == "N") {
+                        if (page < total_pages) {
+                            CallServerFunction();
+                        }
+
+                    }
+
+                }
+            });
+
+            function CallServerFunction() {
+               
+                var page = parseInt(pageHiddenValu);
+                page = page + 1;
+                pageHiddenValu = page;
+                console.log("current Page", page)
+                $.ajax({
+                    type: "GET",
+                    url: "https://reqres.in/api/products",
+                    contentType: "application/json",
+                    data: {
+                        page: pageHiddenValu,
+                        per_page: 1
+                    },
+                    success: function (res) {
+
+                        $('#loader').waitMe("hide");
+                        console.log(res);
+                        res.data.forEach(element => {
+                            $('#wrap').append(`
+                                <div class="newData">
+                                    <h1>` + element.id + `</h1>
+                                    <h1>` + element.name + `</h1>
+                                    <h1>` + element.year + `</h1>
+                                </div>
+                            `);
+                        });
+                        maxPageSize = res.total_pages;
+
+                    },
+                    error: function (req, status, error) {
+                        alert("Error try again");
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
